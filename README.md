@@ -1,232 +1,242 @@
-# BiLerobot Examples
+# BiLerobot: Bimanual SO100 Digital Twin
 
-This directory contains example scripts for working with the BiSO100 dual-arm robot in ManiSkill environments using the LeRobot framework. These examples demonstrate various aspects of robot control, data collection, and teleoperation.
+A bimanual robotics platform combining **LeRobot** and **ManiSkill** for advanced dual-arm manipulation tasks using the SO100 robot digital twin.
 
-## Prerequisites
+## 🚀 Overview
 
-Before running any examples, make sure you have the required packages installed:
+BiLerobot is a comprehensive robotics simulation and learning framework that provides:
 
+- **Bimanual SO100 Robot**: Digital twin of the SO100 dual-arm manipulation platform
+- **ManiSkill Integration**: High-fidelity physics simulation environments
+- **LeRobot Compatibility**: Dataset recording, policy training, and deployment
+- **Teleoperation Support**: Real-time control with physical SO100 leader arms
+- **Multi-Camera System**: Wrist-mounted cameras for visual feedback
+
+## 📋 Requirements
+
+### Core Dependencies
+- **Python**: ≥3.8
+- **ManiSkill**: Physics simulation and environment framework
+- **LeRobot**: Dataset management and policy training
+- **PyTorch**: Deep learning backend
+- **SAPIEN**: 3D physics simulation engine
+- **Gymnasium**: Reinforcement learning environment interface
+
+### Hardware (Optional)
+- SO100 Leader Arms for teleoperation
+- USB connections for real-time control
+
+## 🛠️ Installation
+
+1. **Clone the repository:**
 ```bash
-pip install maniskill
-pip install lerobot
+git clone https://github.com/your-username/BiLerobot.git
+cd BiLerobot
 ```
 
-Additionally, you'll need to install this package:
-
+2. **Install the package:**
 ```bash
 pip install -e .
 ```
 
-## Available Examples
-
-### 1. `record_bi_so100_maniskill.py` - Dataset Recording
-
-Records robot demonstrations in ManiSkill environments using the LeRobot dataset format. Supports multiple operation modes:
-
-#### Teleoperator Mode (using real SO100 leader arms)
-Control the virtual robot using physical SO100 leader arms for teleoperation:
-
+3. **Install dependencies:**
 ```bash
-python bi_lerobot/examples/record_bi_so100_maniskill.py \
-    --robot.env_id=BiSO100OpenLid-v1 \
-    --robot.leader_ids=left_leader,right_leader \
-    --robot.teleop_ports=/dev/ttyACM0,/dev/ttyACM1 \
-    --robot.calibration_files="path/to/left_calibration.json,path/to/right_calibration.json" \
-    --dataset.repo_id=username/bi_so100_maniskill_teleop \
-    --dataset.num_episodes=10 \
-    --dataset.single_task="Open the bottle lid with both arms"
+# Install ManiSkill
+pip install mani-skill
+
+# Install LeRobot
+pip install lerobot
+
+# Additional dependencies
+pip install sapien gymnasium torch transforms3d pygame tyro
 ```
 
-#### Policy Mode (using a pretrained policy)
-Generate demonstrations using a pretrained policy:
+## 🤖 Robot Configuration
 
-```bash
-python bi_lerobot/examples/record_bi_so100_maniskill.py \
-    --robot.env_id=BiSO100OpenLid-v1 \
-    --policy.path=path/to/pretrained/policy \
-    --dataset.repo_id=username/bi_so100_maniskill_policy \
-    --dataset.num_episodes=10 \
-    --dataset.single_task="Open the bottle lid with both arms" \
-    --display_data=true
+### BiSO100 Specifications
+- **Dual Arms**: 2x SO100 robotic arms
+- **DOF**: 5 joints per arm + 1 gripper = 12 total DOF
+- **Mounting**: Fixed base (stationary platform)
+- **Cameras**: Wrist-mounted cameras on each arm
+- **Control Modes**: Position, velocity, delta position, end-effector control
+
+### Joint Configuration
+```
+Left Arm:  [Rotation, Pitch, Elbow, Wrist_Pitch, Wrist_Roll, Jaw]
+Right Arm: [Rotation_2, Pitch_2, Elbow_2, Wrist_Pitch_2, Wrist_Roll_2, Jaw_2]
 ```
 
-#### Manual Mode (for testing)
-Test the environment without teleoperators or policy:
+## 🌍 Environments
 
+### Available Tasks
+
+#### BiSO100OpenLid-v1
+- **Objective**: Collaborative lid opening using both arms
+- **Features**: Bottle with removable lid, coordinated manipulation
+- **Cameras**: Top-down and side view for complete workspace coverage
+- **Success**: Lid successfully removed from bottle
+
+### Environment Features
+- **Physics**: SAPIEN-based realistic simulation
+- **Rendering**: Ray-traced visuals with configurable shaders
+- **Sensors**: Multi-camera RGB/depth observation
+- **Rewards**: Dense and sparse reward modes
+
+## 🎮 Usage Examples
+
+### 1. Basic Robot Control
 ```bash
-python bi_lerobot/examples/record_bi_so100_maniskill.py \
-    --robot.env_id=BiSO100OpenLid-v1 \
-    --dataset.repo_id=username/bi_so100_maniskill_manual \
-    --dataset.num_episodes=1 \
-    --dataset.single_task="Test environment"
-```
-
-**Key Features:**
-- LeRobot dataset format compatibility
-- Multiple control modes (teleop, policy, manual)
-- Configurable recording parameters (FPS, episode duration, etc.)
-- Automatic data upload to Hugging Face Hub
-
-### 2. `teleoperate_bi_so100_with_real_leader.py` - Real-time Teleoperation
-
-Direct teleoperation of the virtual BiSO100 robot using physical SO100 leader arms:
-
-```bash
-python bi_lerobot/examples/teleoperate_bi_so100_with_real_leader.py \
-    --leader-ids=left_leader,right_leader \
-    --teleop-ports=/dev/ttyACM0,/dev/ttyACM1 \
-    --calibration-files=path/to/left.json,path/to/right.json \
-    --env-id=BiSO100OpenLid-v1 \
-    --fps=30
-```
-
-**Key Features:**
-- Real-time control with customizable FPS
-- Automatic calibration loading and arm mapping
-- Support for both single and dual-arm teleoperation
-- Leader-to-virtual arm position mapping
-
-### 3. `generate_bi_so100_calibration_interactive.py` - Interactive Calibration
-
-Generate calibration data by manually positioning both physical leader and virtual arms:
-
-```bash
-python bi_lerobot/examples/generate_bi_so100_calibration_interactive.py \
-    --leader-id=right_leader \
-    --virtual-arm=right \
-    --teleop-port=/dev/ttyACM1
-```
-
-**Interactive Controls:**
-- **Physical leader arm:** Move manually to desired positions
-- **Virtual arm:** Use keyboard controls (WASD for movement, QE for rotation, etc.)
-- **SPACE:** Record current position correspondence
-- **C:** Calculate and save calibration
-- **Q:** Quit
-
-**Key Features:**
-- Manual position correspondence recording
-- Real-time calibration calculation
-- Automatic calibration file generation
-- Support for both left and right arms
-
-### 4. `demo_bi_so100_ctrl.py` - Basic Joint Control Demo
-
-Demonstrates basic keyboard-controlled joint-level control of the BiSO100 robot:
-
-```bash
+# Run interactive control demo
 python bi_lerobot/examples/demo_bi_so100_ctrl.py \
-    --env-id=BiSO100OpenLid-v1 \
-    --render-mode=human
+    --env_id BiSO100OpenLid-v1 \
+    --render_mode human \
+    --control_mode pd_joint_delta_pos_dual_arm
 ```
 
-**Keyboard Controls:**
-- Various keys for controlling individual joints of both arms
-- Real-time visualization of robot movement
-- Adjustable joint step size and control gains
-
-**Key Features:**
-- Direct joint control interface
-- Real-time robot visualization
-- Customizable control parameters
-- Educational tool for understanding robot kinematics
-
-### 5. `demo_bi_so100_ctrl_ee.py` - End-Effector Control Demo
-
-Demonstrates end-effector (Cartesian) control of the BiSO100 robot with inverse kinematics:
-
+### 2. End-Effector Control
 ```bash
+# Control robot end-effectors directly
 python bi_lerobot/examples/demo_bi_so100_ctrl_ee.py \
-    --env-id=BiSO100OpenLid-v1 \
-    --render-mode=human
+    --env_id BiSO100OpenLid-v1 \
+    --control_mode pd_ee_delta_pose
 ```
 
-**Key Features:**
-- End-effector position control
-- Inverse kinematics calculations
-- 2-link arm modeling
-- Workspace boundary handling
-- Keyboard-based Cartesian control
-
-## Common Parameters
-
-### Environment IDs
-- `BiSO100OpenLid-v1` - Bottle lid opening task
-- Other BiSO100 environments (check ManiSkill documentation)
-
-### Render Modes
-- `human` - Visual rendering with GUI
-- `none` - No rendering (faster execution)
-
-### Control Modes
-- `pd_joint_delta_pos_dual_arm` - Position control for dual arms
-- Other control modes supported by ManiSkill
-
-## Hardware Requirements
-
-### For Teleoperation Examples
-- Physical SO100 leader arm(s)
-- USB serial connections (typically `/dev/ttyACM0`, `/dev/ttyACM1`)
-- Proper calibration files
-
-### For Demo Examples
-- Standard computer with graphics support
-- Keyboard for control input
-
-## Calibration Workflow
-
-1. **Generate Calibration:** Use `generate_bi_so100_calibration_interactive.py` to create calibration files
-2. **Test Teleoperation:** Use `teleoperate_bi_so100_with_real_leader.py` to verify calibration
-3. **Record Data:** Use `record_bi_so100_maniskill.py` with teleop mode for data collection
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Serial Port Access:**
-   ```bash
-   sudo chmod 666 /dev/ttyACM*
-   ```
-
-2. **Missing Calibration Files:**
-   - Run the calibration script first
-   - Check file paths in commands
-   - Ensure calibration files exist in specified locations
-
-3. **Environment Loading Errors:**
-   - Verify ManiSkill installation
-   - Check if BiLerobot package is properly installed
-   - Ensure all dependencies are available
-
-4. **Control Responsiveness:**
-   - Adjust FPS parameter
-   - Check system performance
-   - Verify hardware connections
-
-## File Structure
-
-```
-bi_lerobot/examples/
-├── README.md                                    # This file
-├── record_bi_so100_maniskill.py                # Data recording
-├── teleoperate_bi_so100_with_real_leader.py    # Real-time teleoperation
-├── generate_bi_so100_calibration_interactive.py # Calibration generation
-├── demo_bi_so100_ctrl.py                       # Basic joint control
-└── demo_bi_so100_ctrl_ee.py                    # End-effector control
+### 3. Teleoperation with Real Hardware
+```bash
+# Control simulation with physical SO100 leaders
+python bi_lerobot/examples/teleoperate_bi_so100_with_real_leader.py \
+    --env_id BiSO100OpenLid-v1 \
+    --leader_ids left_leader,right_leader \
+    --teleop_ports /dev/ttyACM0,/dev/ttyACM1
 ```
 
-## Additional Resources
+### 4. Dataset Recording
+```bash
+# Record demonstration data with teleoperation
+python bi_lerobot/examples/record_bi_so100_maniskill.py \
+    --robot.env_id BiSO100OpenLid-v1 \
+    --robot.leader_ids left_leader,right_leader \
+    --robot.teleop_ports /dev/ttyACM0,/dev/ttyACM1 \
+    --dataset.repo_id username/bi_so100_demonstrations \
+    --dataset.num_episodes 50 \
+    --dataset.single_task "Open bottle lid with both arms"
+```
 
-- [LeRobot Documentation](https://huggingface.co/docs/lerobot)
-- [ManiSkill Documentation](https://maniskill.readthedocs.io/)
-- [BiSO100 Robot Specifications](https://www.bilibili.com/read/cv34492412/)
+### 5. Policy Training Integration
+```bash
+# Record data using a pretrained policy
+python bi_lerobot/examples/record_bi_so100_maniskill.py \
+    --robot.env_id BiSO100OpenLid-v1 \
+    --policy.path path/to/pretrained/policy \
+    --dataset.repo_id username/bi_so100_policy_data \
+    --dataset.num_episodes 100
+```
 
-## Contributing
+## 🎯 Control Modes
 
-When adding new examples:
-1. Follow the existing code structure and naming conventions
-2. Add comprehensive docstrings and comments
-3. Update this README with new example descriptions
-4. Test examples with different configurations
+### Supported Control Modes
+- `pd_joint_pos`: Direct joint position control
+- `pd_joint_delta_pos_dual_arm`: Incremental joint position (dual-arm)
+- `pd_ee_delta_pos`: End-effector position control
+- `pd_ee_delta_pose`: End-effector pose control (position + orientation)
+- `pd_joint_vel`: Joint velocity control
 
-For questions or issues, please refer to the main repository documentation or create an issue on the project repository. 
+### Key Mappings (Interactive Control)
+- **WASD**: Move end-effector in XY plane
+- **QE**: Move end-effector up/down
+- **RF**: Rotate wrist pitch
+- **TG**: Rotate wrist roll
+- **Space**: Toggle gripper open/close
+- **Arrow Keys**: Control second arm
+- **Enter**: Reset environment
+
+## 📊 Data Collection
+
+### Dataset Format
+- **LeRobot Compatible**: Standard HuggingFace dataset format
+- **Multi-Modal**: RGB cameras, joint states, actions
+- **Timestamped**: Synchronized data streams
+- **Compressed**: Efficient video encoding for large datasets
+
+### Recording Features
+- Real-time teleoperation recording
+- Policy rollout recording
+- Multi-camera synchronized capture
+- Automatic episode segmentation
+- Data validation and quality checks
+
+## 🔧 Calibration
+
+### SO100 Leader Calibration
+```bash
+# Generate interactive calibration for teleoperation
+python bi_lerobot/examples/generate_bi_so100_calibration_interactive.py \
+    --robot_id bi_so100 \
+    --leader_ids left_leader,right_leader \
+    --output_dir ~/.cache/huggingface/lerobot/calibration/virtual_robots/bi_so100/
+```
+
+## 📁 Project Structure
+
+```
+bi_lerobot/
+├── agents/           # Robot agent implementations
+│   └── robots/
+│       └── bi_so100/ # SO100 robot definition and control
+├── envs/            # Simulation environments
+│   └── tasks/
+│       └── tabletop/ # Tabletop manipulation tasks
+├── assets/          # Robot models and configurations
+│   └── robots/
+│       └── bi_so100/ # URDF and mesh files
+└── examples/        # Usage examples and demos
+    ├── demo_bi_so100_ctrl.py              # Basic robot control
+    ├── demo_bi_so100_ctrl_ee.py           # End-effector control
+    ├── teleoperate_bi_so100_with_real_leader.py # Hardware teleoperation
+    ├── record_bi_so100_maniskill.py       # Dataset recording
+    └── generate_bi_so100_calibration_interactive.py # Calibration
+```
+
+## 🧪 Development
+
+### Adding New Tasks
+1. Create task class in `bi_lerobot/envs/tasks/`
+2. Register environment with `@register_env` decorator
+3. Implement required methods: `_load_scene`, `_initialize_episode`, `evaluate`
+
+### Extending Robot Capabilities
+1. Modify robot URDF in `bi_lerobot/assets/robots/bi_so100/`
+2. Update control configurations in `bi_so100.py`
+3. Add new control modes as needed
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests and documentation
+5. Submit a pull request
+
+## 📄 License
+
+This project follows the respective licenses of its components:
+- **LeRobot**: Apache 2.0 License
+- **ManiSkill**: MIT License
+
+## 🙏 Acknowledgments
+
+- **LeRobot Team**: Dataset management and policy framework
+- **ManiSkill Team**: Physics simulation environment
+- **SAPIEN**: 3D physics simulation engine
+- **HuggingFace**: Dataset hosting and management
+
+## 📞 Support
+
+For issues and questions:
+1. Check the [Issues](https://github.com/your-username/BiLerobot/issues) page
+2. Review ManiSkill and LeRobot documentation
+3. Join the community discussions
+
+---
+
+**Built with ❤️ for advancing bimanual robotics research** 
