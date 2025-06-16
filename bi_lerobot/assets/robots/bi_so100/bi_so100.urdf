@@ -1,0 +1,996 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- 
+BIMANUAL SO-100 ROBOT URDF DESCRIPTION
+=====================================
+This URDF defines a simplified bimanual SO-100 robot with the following components:
+1. Fixed base platform (no mobility)
+2. Dual SO-100 robotic arms (5-DOF each + gripper)
+3. No head system or storage compartments
+
+The robot has 12 total DOF:
+- 5 DOF per arm (rotation, pitch, elbow, wrist_pitch, wrist_roll)
+- 1 DOF per gripper (jaw open/close)
+-->
+
+<robot name="bi_so100">
+
+  <!-- MATERIAL DEFINITIONS -->
+  <!-- These materials define the visual appearance of robot parts -->
+  <material name="white">
+    <color rgba="0.9 0.9 0.9 1" />
+  </material>
+
+  <material name="grey">
+    <color rgba="0.6 0.6 0.6 1" />
+  </material>
+
+  <material name="motor">
+    <color rgba="0.02 0.02 0.02 1" />
+  </material>
+
+  <!-- FIXED BASE LINK -->
+  <!-- Invisible mounting platform for the dual arms -->
+  <link name="base_link">
+    <inertial>
+      <!-- Center of mass at base level -->
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="10.0"/>
+      <inertia ixx="0.1" ixy="0.0" ixz="0.0" iyy="0.1" iyz="0.0" izz="0.1"/>
+    </inertial>
+    <!-- No visual or collision elements - invisible platform -->
+  </link>
+
+  <!-- FIRST ARM SYSTEM -->
+  <!-- SO-100 robotic arm with 5 DOF + gripper -->
+  <!-- Base mount for first arm -->
+  <link name="Base">
+    <inertial>
+      <origin
+        xyz="-2.45960666746703E-07 0.0311418169687909 0.0175746661003382"
+        rpy="0 0 0" />
+      <mass
+        value="0.193184127927598" />
+      <inertia
+        ixx="0.000137030709467877"
+        ixy="2.10136126944992E-08"
+        ixz="4.24087422551286E-09"
+        iyy="0.000169089551209259"
+        iyz="2.26514711036514E-05"
+        izz="0.000145097720857224" />
+    </inertial>
+    <visual name="base_link_chassis">
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/Base.stl" />
+      </geometry>
+      <material name="white">
+      </material>
+    </visual>
+    <visual name="base_link_motor">
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Base_Motor.stl" />
+      </geometry>
+      <material name="motor">
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Base.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Base_Motor.stl" />
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- Fixed joint connecting the first arm base to the main body -->
+  <joint name="arm_base_joint" type="fixed">
+    <origin rpy="0 0 1.5708" xyz="-0.14 0.18 0.1"/>
+    <parent link="base_link"/>
+    <child link="Base"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="8.85" velocity="17.4"/>
+  </joint>
+
+  <!-- First joint assembly: combines rotation and pitch mechanisms -->
+  <link name="Rotation_Pitch">
+    <inertial>
+      <origin
+        xyz="-9.07886224712597E-05 0.0590971820568318 0.031089016892169"
+        rpy="0 0 0" />
+      <mass
+        value="0.119226314127197" />
+      <inertia
+        ixx="5.90408775624429E-05"
+        ixy="4.90800532852998E-07"
+        ixz="-5.90451772654387E-08"
+        iyy="3.21498601038881E-05"
+        iyz="-4.58026206663885E-06"
+        izz="5.86058514263952E-05" />
+    </inertial>
+    <visual name="rotation_pitch_chassis">
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Rotation_Pitch.stl" />
+      </geometry>
+      <material name="white">
+      </material>
+    </visual>
+    <visual name="rotation_pitch_motor">
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Rotation_Pitch_Motor.stl" />
+      </geometry>
+      <material name="motor">
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Rotation_Pitch.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Rotation_Pitch_Motor.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <!-- DOF 1: Base rotation joint - rotates entire arm around vertical axis -->
+  <joint name="Rotation" type="revolute">
+    <origin
+      xyz="0 -0.0452 0.0165"
+      rpy="1.5708 0 0" />
+    <parent
+      link="Base" />
+    <child
+      link="Rotation_Pitch" />
+    <axis
+      xyz="0 -1 0" />
+    <limit
+      lower="-2.1"
+      upper="2.1"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <!-- Upper arm link - main arm segment from shoulder to elbow -->
+  <link name="Upper_Arm">
+    <inertial>
+      <origin
+        xyz="-1.7205170190925E-05 0.0701802156327694 0.00310545118155671"
+        rpy="0 0 0" />
+      <mass
+        value="0.162409284599177" />
+      <inertia
+        ixx="0.000167153146617081"
+        ixy="1.03902689187701E-06"
+        ixz="-1.20161820645189E-08"
+        iyy="7.01946992214245E-05"
+        iyz="2.11884806298698E-06"
+        izz="0.000213280241160769" />
+    </inertial>
+    <visual name="upper_arm_chassis">
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Upper_Arm.stl" />
+      </geometry>
+      <material name="white">
+      </material>
+    </visual>
+    <visual name="upper_arm_motor">
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Upper_Arm_Motor.stl" />
+      </geometry>
+      <material name="motor">
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Upper_Arm.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Upper_Arm_Motor.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="Pitch" type="revolute">
+    <origin
+      xyz="0 0.1025 0.0306"
+      rpy="1.5708 0 0" />
+    <parent
+      link="Rotation_Pitch" />
+    <child
+      link="Upper_Arm" />
+    <axis
+      xyz="-1 0 0" />
+    <limit
+      lower="-0.1"
+      upper="3.45"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link name="Lower_Arm">
+    <inertial>
+      <origin xyz="-0.00339603710186651 0.00137796353960074 0.0768006751156044" rpy="0 0 0" />
+      <mass value="0.147967774582291" />
+      <inertia
+        ixx="0.000105333995841409"
+        ixy="1.73059237226499E-07"
+        ixz="-1.1720305455211E-05"
+        iyy="0.000138766654485212"
+        iyz="1.77429964684103E-06"
+        izz="5.08741652515214E-05" />
+    </inertial>
+    <visual name="lower_arm_chassis">
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Lower_Arm.stl" />
+      </geometry>
+      <material name="white">
+      </material>
+    </visual>
+    <visual name="lower_arm_motor">
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Lower_Arm_Motor.stl" />
+      </geometry>
+      <material name="motor">
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Lower_Arm.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Lower_Arm_Motor.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="Elbow" type="revolute">
+    <origin xyz="0 0.11257 0.028" rpy="-1.5708 0 0" />
+    <parent link="Upper_Arm" />
+    <child link="Lower_Arm" />
+    <axis xyz="1 0 0" />
+    <limit lower="-0.2" upper="3.14159" effort="0" velocity="0" />
+  </joint>
+  <link name="Wrist_Pitch_Roll">
+    <inertial>
+      <origin xyz="-0.00852653127372418 -0.0352278997897927 -2.34622481569413E-05" rpy="0 0 0" />
+      <mass value="0.066132067097723" />
+      <inertia ixx="1.95717492443445E-05" ixy="-6.62714374412293E-07" ixz="5.20089016442066E-09" iyy="2.38028417569933E-05" iyz="4.09549055863776E-08" izz="3.4540143384536E-05" />
+    </inertial>
+    <visual name="wrist_pitch_roll_chassis">
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Wrist_Pitch_Roll.stl" />
+      </geometry>
+      <material name="white">
+      </material>
+    </visual>
+    <visual name="wrist_pitch_roll_motor">
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Wrist_Pitch_Roll_Motor.stl" />
+      </geometry>
+      <material name="motor">
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Wrist_Pitch_Roll.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Wrist_Pitch_Roll_Motor.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="Wrist_Pitch" type="revolute">
+    <origin
+      xyz="0 0.0052 0.1349"
+      rpy="-1.5708 0 0" />
+    <parent
+      link="Lower_Arm" />
+    <child
+      link="Wrist_Pitch_Roll" />
+    <axis
+      xyz="1 0 0" />
+    <limit 
+      lower="-1.8"
+      upper="1.8"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link name="Fixed_Jaw">
+    <inertial>
+      <origin xyz="0.00552376906426563 -0.0280167153359021 0.000483582592841092" rpy="0 0 0" />
+      <mass
+        value="0.0929859131176897" />
+      <inertia
+        ixx="4.3328249304211E-05"
+        ixy="7.09654328670947E-06"
+        ixz="5.99838530879484E-07"
+        iyy="3.04451747368212E-05"
+        iyz="-1.58743247545413E-07"
+        izz="5.02460913506734E-05" />
+    </inertial>
+    <visual name="fixed_jaw_chassis">
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Fixed_Jaw.stl" />
+      </geometry>
+      <material name="white">
+      </material>
+    </visual>
+    <visual name="fixed_jaw_motor">
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Fixed_Jaw_Motor.stl" />
+      </geometry>
+      <material name="motor">
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Fixed_Jaw_part1.ply" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Fixed_Jaw_part2.ply" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="Wrist_Roll" type="revolute">
+    <origin xyz="0 -0.0601 0" rpy="0 1.5708 0" />
+    <parent link="Wrist_Pitch_Roll" />
+    <child link="Fixed_Jaw" />
+    <axis xyz="0 -1 0" />
+    <limit lower="-3.14159" upper="3.14159" effort="0" velocity="0" />
+  </joint>
+  <link name="Moving_Jaw">
+    <inertial>
+      <origin
+        xyz="-0.00161744605468241 -0.0303472584046471 0.000449645961853651"
+        rpy="0 0 0" />
+      <mass
+        value="0.0202443794940372" />
+      <inertia
+        ixx="1.10911325081525E-05"
+        ixy="-5.35076503033314E-07"
+        ixz="-9.46105662101403E-09"
+        iyy="3.03576451001973E-06"
+        iyz="-1.71146075110632E-07"
+        izz="8.9916083370498E-06" />
+    </inertial>
+    <visual name="moving_jaw_chassis">
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Moving_Jaw.stl" />
+      </geometry>
+      <material name="white">
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Moving_Jaw_part1.ply" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Moving_Jaw_part2.ply" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Moving_Jaw_part3.ply" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="Jaw" type="revolute">
+    <origin xyz="-0.0202 -0.0244 0" rpy="3.1416 0 3.33" />
+    <parent link="Fixed_Jaw" />
+    <child link="Moving_Jaw" />
+    <axis xyz="0 0 1" />
+    <limit lower="0" upper="1.7" effort="0" velocity="0" />
+  </joint>
+
+  <!-- fake joints for useful data -->
+  <joint name="Fixed_Jaw_tip_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0.01 -0.097 0"/>
+    <parent link="Fixed_Jaw"/>
+    <child link="Fixed_Jaw_tip"/>
+  </joint>
+  <link name="Fixed_Jaw_tip"/>
+  <joint name="Moving_Jaw_tip_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.01 -0.073 0"/>
+    <parent link="Moving_Jaw"/>
+    <child link="Moving_Jaw_tip"/>
+  </joint>
+  <link name="Moving_Jaw_tip"/>
+
+  <!-- Camera link mounted on right side of Fixed_Jaw x:-is to upper side of jaw y:-is to inner side of jaw z:-is to right side of jaw-->
+  <joint name="Right_Arm_Camera_joint" type="fixed">
+    <origin rpy="1.5708 0 -1.5708" xyz="0 -0.02 -0.05"/>
+    <parent link="Fixed_Jaw"/>
+    <child link="Right_Arm_Camera"/>
+  </joint>
+  <link name="Right_Arm_Camera"/>
+
+  <!-- SECOND ARM SYSTEM -->
+  <!-- SO-100 robotic arm with 5 DOF + gripper -->
+  <link name="Base_2">
+    <inertial>
+      <origin xyz="-2.45960666746703E-07 0.0311418169687909 0.0175746661003382" rpy="0 0 0" />
+      <mass
+        value="0.193184127927598" />
+      <inertia
+        ixx="0.000137030709467877"
+        ixy="2.10136126944992E-08"
+        ixz="4.24087422551286E-09"
+        iyy="0.000169089551209259"
+        iyz="2.26514711036514E-05"
+        izz="0.000145097720857224" />
+    </inertial>
+    <visual name="base_link_chassis">
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/Base.stl" />
+      </geometry>
+      <material name="white">
+      </material>
+    </visual>
+    <visual name="base_link_motor">
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Base_Motor.stl" />
+      </geometry>
+      <material name="motor">
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Base.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Base_Motor.stl" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="arm_base_joint_2" type="fixed">
+    <origin rpy="0 0 1.5708" xyz="-0.14 -0.18 0.1"/>
+    <parent link="base_link"/>
+    <child link="Base_2"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="8.85" velocity="17.4"/>
+  </joint>
+
+  <link name="Rotation_Pitch_2">
+    <inertial>
+      <origin
+        xyz="-9.07886224712597E-05 0.0590971820568318 0.031089016892169"
+        rpy="0 0 0" />
+      <mass
+        value="0.119226314127197" />
+      <inertia
+        ixx="5.90408775624429E-05"
+        ixy="4.90800532852998E-07"
+        ixz="-5.90451772654387E-08"
+        iyy="3.21498601038881E-05"
+        iyz="-4.58026206663885E-06"
+        izz="5.86058514263952E-05" />
+    </inertial>
+    <visual name="rotation_pitch_chassis">
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Rotation_Pitch.stl" />
+      </geometry>
+      <material name="white">
+      </material>
+    </visual>
+    <visual name="rotation_pitch_motor">
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Rotation_Pitch_Motor.stl" />
+      </geometry>
+      <material name="motor">
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Rotation_Pitch.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Rotation_Pitch_Motor.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="Rotation_2" type="revolute">
+    <origin
+      xyz="0 -0.0452 0.0165"
+      rpy="1.5708 0 0" />
+    <parent
+      link="Base_2" />
+    <child
+      link="Rotation_Pitch_2" />
+    <axis
+      xyz="0 -1 0" />
+    <limit
+      lower="-2.1"
+      upper="2.1"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link name="Upper_Arm_2">
+    <inertial>
+      <origin
+        xyz="-1.7205170190925E-05 0.0701802156327694 0.00310545118155671"
+        rpy="0 0 0" />
+      <mass
+        value="0.162409284599177" />
+      <inertia
+        ixx="0.000167153146617081"
+        ixy="1.03902689187701E-06"
+        ixz="-1.20161820645189E-08"
+        iyy="7.01946992214245E-05"
+        iyz="2.11884806298698E-06"
+        izz="0.000213280241160769" />
+    </inertial>
+    <visual name="upper_arm_chassis">
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Upper_Arm.stl" />
+      </geometry>
+      <material name="white">
+      </material>
+    </visual>
+    <visual name="upper_arm_motor">
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Upper_Arm_Motor.stl" />
+      </geometry>
+      <material name="motor">
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Upper_Arm.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Upper_Arm_Motor.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="Pitch_2" type="revolute">
+    <origin xyz="0 0.1025 0.0306" rpy="1.5708 0 0" />
+    <parent
+      link="Rotation_Pitch_2" />
+    <child
+      link="Upper_Arm_2" />
+    <axis
+      xyz="-1 0 0" />
+    <limit
+      lower="-0.1"
+      upper="3.45"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link name="Lower_Arm_2">
+    <inertial>
+      <origin xyz="-0.00339603710186651 0.00137796353960074 0.0768006751156044" rpy="0 0 0" />
+      <mass value="0.147967774582291" />
+      <inertia
+        ixx="0.000105333995841409"
+        ixy="1.73059237226499E-07"
+        ixz="-1.1720305455211E-05"
+        iyy="0.000138766654485212"
+        iyz="1.77429964684103E-06"
+        izz="5.08741652515214E-05" />
+    </inertial>
+    <visual name="lower_arm_chassis">
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Lower_Arm.stl" />
+      </geometry>
+      <material name="white">
+      </material>
+    </visual>
+    <visual name="lower_arm_motor">
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Lower_Arm_Motor.stl" />
+      </geometry>
+      <material name="motor">
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Lower_Arm.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Lower_Arm_Motor.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="Elbow_2" type="revolute">
+    <origin xyz="0 0.11257 0.028" rpy="-1.5708 0 0" />
+    <parent link="Upper_Arm_2" />
+    <child link="Lower_Arm_2" />
+    <axis xyz="1 0 0" />
+    <limit lower="-0.2" upper="3.14159" effort="0" velocity="0" />
+  </joint>
+  <link name="Wrist_Pitch_Roll_2">
+    <inertial>
+      <origin xyz="-0.00852653127372418 -0.0352278997897927 -2.34622481569413E-05" rpy="0 0 0" />
+      <mass value="0.066132067097723" />
+      <inertia ixx="1.95717492443445E-05" ixy="-6.62714374412293E-07" ixz="5.20089016442066E-09" iyy="2.38028417569933E-05" iyz="4.09549055863776E-08" izz="3.4540143384536E-05" />
+    </inertial>
+    <visual name="wrist_pitch_roll_chassis">
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Wrist_Pitch_Roll.stl" />
+      </geometry>
+      <material name="white">
+      </material>
+    </visual>
+    <visual name="wrist_pitch_roll_motor">
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Wrist_Pitch_Roll_Motor.stl" />
+      </geometry>
+      <material name="motor">
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Wrist_Pitch_Roll.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Wrist_Pitch_Roll_Motor.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="Wrist_Pitch_2" type="revolute">
+    <origin xyz="0 0.0052 0.1349" rpy="-1.5708 0 0" />
+    <parent
+      link="Lower_Arm_2" />
+    <child
+      link="Wrist_Pitch_Roll_2" />
+    <axis
+      xyz="1 0 0" />
+    <limit 
+      lower="-1.8"
+      upper="1.8"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link name="Fixed_Jaw_2">
+    <inertial>
+      <origin xyz="0.00552376906426563 -0.0280167153359021 0.000483582592841092" rpy="0 0 0" />
+      <mass
+        value="0.0929859131176897" />
+      <inertia
+        ixx="4.3328249304211E-05"
+        ixy="7.09654328670947E-06"
+        ixz="5.99838530879484E-07"
+        iyy="3.04451747368212E-05"
+        iyz="-1.58743247545413E-07"
+        izz="5.02460913506734E-05" />
+    </inertial>
+    <visual name="fixed_jaw_chassis">
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Fixed_Jaw.stl" />
+      </geometry>
+      <material name="white">
+      </material>
+    </visual>
+    <visual name="fixed_jaw_motor">
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Fixed_Jaw_Motor.stl" />
+      </geometry>
+      <material name="motor">
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Fixed_Jaw_part1.ply" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Fixed_Jaw_part2.ply" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="Wrist_Roll_2" type="revolute">
+    <origin xyz="0 -0.0601 0" rpy="0 1.5708 0" />
+    <parent link="Wrist_Pitch_Roll_2" />
+    <child link="Fixed_Jaw_2" />
+    <axis xyz="0 -1 0" />
+    <limit lower="-3.14159" upper="3.14159" effort="0" velocity="0" />
+  </joint>
+  <link name="Moving_Jaw_2">
+    <inertial>
+      <origin xyz="-0.00161744605468241 -0.0303472584046471 0.000449645961853651" rpy="0 0 0" />
+      <mass value="0.0202443794940372" />
+      <inertia
+        ixx="1.10911325081525E-05"
+        ixy="-5.35076503033314E-07"
+        ixz="-9.46105662101403E-09"
+        iyy="3.03576451001973E-06"
+        iyz="-1.71146075110632E-07"
+        izz="8.9916083370498E-06" />
+    </inertial>
+    <visual name="moving_jaw_chassis">
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Moving_Jaw.stl" />
+      </geometry>
+      <material name="white">
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Moving_Jaw_part1.ply" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Moving_Jaw_part2.ply" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="meshes/Moving_Jaw_part3.ply" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="Jaw_2" type="revolute">
+    <origin xyz="-0.0202 -0.0244 0" rpy="3.1416 0 3.33" />
+    <parent link="Fixed_Jaw_2" />
+    <child link="Moving_Jaw_2" />
+    <axis xyz="0 0 1" />
+    <limit lower="0" upper="1.7" effort="0" velocity="0" />
+  </joint>
+
+  <!-- fake joints for useful data -->
+  <joint name="Fixed_Jaw_tip_joint_2" type="fixed">
+    <origin rpy="0 0 0" xyz="0.01 -0.097 0"/>
+    <parent link="Fixed_Jaw_2"/>
+    <child link="Fixed_Jaw_tip_2"/>
+  </joint>
+  <link name="Fixed_Jaw_tip_2"/>
+  <joint name="Moving_Jaw_tip_joint_2" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.01 -0.073 0"/>
+    <parent link="Moving_Jaw_2"/>
+    <child link="Moving_Jaw_tip_2"/>
+  </joint>
+  <link name="Moving_Jaw_tip_2"/>
+
+  <!-- Camera link mounted on right side of Fixed_Jaw_2 -->
+  <joint name="Left_Arm_Camera_joint" type="fixed">
+    <origin rpy="1.5708 0 -1.5708" xyz="0 -0.02 -0.05"/>
+    <parent link="Fixed_Jaw_2"/>
+    <child link="Left_Arm_Camera"/>
+  </joint>
+  <link name="Left_Arm_Camera"/>
+
+</robot>

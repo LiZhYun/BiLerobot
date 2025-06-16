@@ -1,0 +1,1 @@
+from .bi_so100_open_lid import BiSO100OpenLidEnv
