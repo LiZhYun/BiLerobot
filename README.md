@@ -6,6 +6,15 @@ A bimanual robotics platform combining **LeRobot** and **ManiSkill** for advance
 
 BiLerobot is a comprehensive robotics simulation and learning framework that provides:
 
+### 🎥 Demo Video
+Watch BiLerobot in action:
+
+<video width="800" controls>
+  <source src="./assets/46-3580.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+*BiLerobot bimanual SO100 manipulation demonstration*
 - **Bimanual SO100 Robot**: Digital twin of the SO100 dual-arm manipulation platform
 - **ManiSkill Integration**: High-fidelity physics simulation environments
 - **LeRobot Compatibility**: Dataset recording, policy training, and deployment
