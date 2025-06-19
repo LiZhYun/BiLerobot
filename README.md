@@ -51,7 +51,7 @@ pip install lerobot
 pip install sapien gymnasium torch transforms3d pygame tyro
 ```
 
-3. **Download Assets**
+4. **Download Assets**
 
 The BiSO100 environments require additional 3D assets for objects and scenes. You'll need to download both [YCB objects](http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/) and [PartNet-Mobility articulated objects](https://sapien.ucsd.edu/browse).
 
