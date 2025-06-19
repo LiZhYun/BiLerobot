@@ -51,6 +51,44 @@ pip install lerobot
 pip install sapien gymnasium torch transforms3d pygame tyro
 ```
 
+3. **Download Assets**
+
+The BiSO100 environments require additional 3D assets for objects and scenes. You'll need to download both [YCB objects](http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/) and [PartNet-Mobility articulated objects](https://sapien.ucsd.edu/browse).
+
+#### YCB Objects
+For everyday objects like cups and containers:
+```bash
+python -m mani_skill.utils.download_asset "ycb"
+```
+
+#### PartNet-Mobility Objects  
+For articulated objects like bottles with lids, the default download only includes limited categories. You'll need to manually download the complete dataset:
+
+**Automatic Download (Limited Categories)**:
+```bash
+# This only downloads: cabinet_drawer, cabinet_door, chair, bucket, faucet
+python -m mani_skill.utils.download_asset "partnet_mobility"
+```
+
+**Manual Download (Complete Dataset)**:
+1. **Register and Login**: Visit [SAPIEN Downloads](https://sapien.ucsd.edu/downloads) and create an account
+2. **Browse Assets**: Explore available objects at [SAPIEN Browse](https://sapien.ucsd.edu/browse)
+3. **Download**: Download the complete PartNet-Mobility dataset
+4. **Extract**: Place the downloaded contents in `~/.maniskill/data/partnet_mobility/dataset/`
+
+The manual download ensures you have access to all object categories including bottles, containers, and other articulated objects used in the BiSO100 tasks.
+
+**Quick Asset Download (Alternative)**:
+If you encounter issues with the manual PartNet-Mobility download or need quick access to the bottle assets used in BiSO100 tasks, you can download them directly from [Google Drive](https://drive.google.com/file/d/1oGD_MmZ1C2wqo7y9d-uVEmC54z50oRG8/view?usp=sharing).
+
+```bash
+# After downloading from Google Drive, extract to:
+# ~/.maniskill/data/partnet_mobility/dataset/
+```
+
+> **Note**: This alternative download link may be removed if it conflicts with SAPIEN's distribution policies. For official access, please use the manual download method above.
+
+
 ## 🤖 Robot Configuration
 
 ### BiSO100 Specifications
@@ -98,10 +136,32 @@ python bi_lerobot/examples/demo_bi_so100_ctrl.py \
 # Control robot end-effectors directly
 python bi_lerobot/examples/demo_bi_so100_ctrl_ee.py \
     --env_id BiSO100OpenLid-v1 \
-    --control_mode pd_ee_delta_pose
+    --control_mode pd_joint_delta_pos_dual_arm
 ```
 
-### 3. Teleoperation with Real Hardware
+### 3. Calibration Real SO100
+
+Before using real SO100 hardware for teleoperation, you need to properly calibrate the leader arms. Follow the [LeRobot SO100 documentation](https://huggingface.co/docs/lerobot/so100#leader) for complete setup instructions.
+
+**Leader Arm**:
+```bash
+python -m lerobot.calibrate \
+    --teleop.type=so100_leader \
+    --teleop.port=/dev/ttyACM0 \  # /dev/ttyACM1
+    --teleop.id=left_leader  # right_leader
+```
+
+### 4. Calibration Virtual SO100
+
+```bash
+# Generate interactive calibration for teleoperation
+python bi_lerobot/examples/generate_bi_so100_calibration_interactive.py \
+    --leader-id=left_leader \  # right_leader
+    --virtual-arm=left \  # right
+    --teleop-port=/dev/ttyACM0  # /dev/ttyACM1
+```
+
+### 5. Teleoperation with Real Hardware
 ```bash
 # Control simulation with physical SO100 leaders
 python bi_lerobot/examples/teleoperate_bi_so100_with_real_leader.py \
@@ -110,26 +170,26 @@ python bi_lerobot/examples/teleoperate_bi_so100_with_real_leader.py \
     --teleop_ports /dev/ttyACM0,/dev/ttyACM1
 ```
 
-### 4. Dataset Recording
+### 6. Dataset Recording
 ```bash
 # Record demonstration data with teleoperation
 python bi_lerobot/examples/record_bi_so100_maniskill.py \
     --robot.env_id BiSO100OpenLid-v1 \
     --robot.leader_ids left_leader,right_leader \
     --robot.teleop_ports /dev/ttyACM0,/dev/ttyACM1 \
-    --dataset.repo_id username/bi_so100_demonstrations \
-    --dataset.num_episodes 50 \
+    --dataset.repo_id ${HF_USER}/bi_so100_demonstrations \
+    --dataset.num_episodes 10 \
     --dataset.single_task "Open bottle lid with both arms"
 ```
 
-### 5. Policy Training Integration
+### 6. Policy Training Integration
 ```bash
 # Record data using a pretrained policy
 python bi_lerobot/examples/record_bi_so100_maniskill.py \
     --robot.env_id BiSO100OpenLid-v1 \
     --policy.path path/to/pretrained/policy \
-    --dataset.repo_id username/bi_so100_policy_data \
-    --dataset.num_episodes 100
+    --dataset.repo_id ${HF_USER}/bi_so100_demonstrations \
+    --dataset.num_episodes 10
 ```
 
 ## 🎯 Control Modes
@@ -164,17 +224,6 @@ python bi_lerobot/examples/record_bi_so100_maniskill.py \
 - Multi-camera synchronized capture
 - Automatic episode segmentation
 - Data validation and quality checks
-
-## 🔧 Calibration
-
-### SO100 Leader Calibration
-```bash
-# Generate interactive calibration for teleoperation
-python bi_lerobot/examples/generate_bi_so100_calibration_interactive.py \
-    --robot_id bi_so100 \
-    --leader_ids left_leader,right_leader \
-    --output_dir ~/.cache/huggingface/lerobot/calibration/virtual_robots/bi_so100/
-```
 
 ## 📁 Project Structure
 
