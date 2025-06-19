@@ -186,7 +186,7 @@ python bi_lerobot/examples/record_bi_so100_maniskill.py \
     --dataset.single_task "Open bottle lid with both arms"
 ```
 
-### 6. Policy Training Integration
+### 7. Policy Training Integration
 ```bash
 # Record data using a pretrained policy
 python bi_lerobot/examples/record_bi_so100_maniskill.py \
