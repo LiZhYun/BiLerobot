@@ -9,6 +9,11 @@ BiLerobot is a comprehensive robotics simulation and learning framework that pro
 ### 🎥 Demo Video
 [![BiLerobot Demo](https://img.youtube.com/vi/6Qg_qwgEqqc/0.jpg)](https://www.youtube.com/watch?v=6Qg_qwgEqqc)
 
+<video width="800" controls>
+  <source src="./assets/46-3580-compress.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
 *Click the image above to watch the full demonstration video*
 
 *BiLerobot bimanual SO100 manipulation demonstration*
