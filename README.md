@@ -9,10 +9,6 @@ BiLerobot is a comprehensive robotics simulation and learning framework that pro
 ### 🎥 Demo Video
 [![BiLerobot Demo](https://img.youtube.com/vi/6Qg_qwgEqqc/0.jpg)](https://github.com/user-attachments/assets/dc852867-b60f-4e86-b7b7-cbf23df19bab)
 
-*Click the image above to watch the full demonstration video*
-
-https://github.com/user-attachments/assets/dc852867-b60f-4e86-b7b7-cbf23df19bab
-
 *BiLerobot bimanual SO100 manipulation demonstration*
 - **Bimanual SO100 Robot**: Digital twin of the SO100 dual-arm manipulation platform
 - **ManiSkill Integration**: High-fidelity physics simulation environments
