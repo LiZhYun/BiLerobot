@@ -278,10 +278,9 @@ This project follows the respective licenses of its components:
 
 ## 🙏 Acknowledgments
 
-- **LeRobot Team**: Dataset management and policy framework
-- **ManiSkill Team**: Physics simulation environment
-- **SAPIEN**: 3D physics simulation engine
-- **HuggingFace**: Dataset hosting and management
+- **[LeRobot](https://github.com/huggingface/lerobot)**: Making AI for Robotics more accessible with end-to-end learning
+- **[ManiSkill](https://github.com/haosulab/ManiSkill)**: An open source GPU parallelized robotics simulator and benchmark
+- **[XLeRobot](https://github.com/Vector-Wangel/XLeRobot)**: Fully Autonomous Household Dual-Arm Mobile Robot
 
 ## 📞 Support
 
@@ -291,5 +290,3 @@ For issues and questions:
 3. Join the community discussions
 
 ---
-
-**Built with ❤️ for advancing bimanual robotics research** 
