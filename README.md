@@ -16,6 +16,82 @@ BiLerobot is a comprehensive robotics simulation and learning framework that pro
 - **Teleoperation Support**: Real-time control with physical SO100 leader arms
 - **Multi-Camera System**: Wrist-mounted cameras for visual feedback
 
+## Update
+
+### LeRobot Integration
+
+This repository includes a `bi_so100/` folder that provides direct integration with LeRobot. The folder contains:
+- `bi_so100_follower/`: Bi_SO100 robot
+- `bi_so100_leader/`: Bi_SO100 teleoperator
+
+#### Quick Setup
+
+1. **Copy Robot and Teleoperator Files**
+   
+   Copy the bi_so100 components to your LeRobot installation:
+   ```bash
+   # Copy follower to robots directory
+   cp -r bi_lerobot/bi_so100/bi_so100_follower /path/to/lerobot/lerobot/common/robots/
+   
+   # Copy leader to teleoperators directory  
+   cp -r bi_lerobot/bi_so100/bi_so100_leader /path/to/lerobot/lerobot/common/teleoperators/
+   ```
+   
+   For example, on a typical installation:
+   ```bash
+   cp -r bi_lerobot/bi_so100/bi_so100_follower /home/name/Codes/lerobot/lerobot/common/robots/
+   cp -r bi_lerobot/bi_so100/bi_so100_leader /home/name/Codes/lerobot/lerobot/common/teleoperators/
+   ```
+
+2. **Modify Robot Utility File**
+   
+   Add the following to `lerobot/common/robots/utils.py` in the `make_robot_from_config()` function:
+   ```python
+   elif config.type == "bi_so100_follower":
+       from .bi_so100_follower import BiSO100Follower
+       return BiSO100Follower(config)
+   ```
+
+3. **Modify Teleoperator Utility File**
+   
+   Add the following to `lerobot/common/teleoperators/utils.py` in the `make_teleoperator_from_config()` function:
+   ```python
+   elif config.type == "bi_so100_leader":
+       from .bi_so100_leader import BiSO100Leader
+       return BiSO100Leader(config)
+   ```
+
+4. **Import in LeRobot Scripts**
+   
+   In `record.py` and `teleoperate.py`, import `bi_so100_leader` and `bi_so100_follower`.
+
+#### Usage with LeRobot
+
+After setup, you can use BiSO100 directly with LeRobot by specifying the robot and teleop types:
+
+```bash
+# Record data with BiSO100
+python -m lerobot.record \
+    --robot.type=bi_so100_follower \
+    --teleop.type=bi_so100_leader \
+    --display_data=true \
+    --dataset.repo_id=${HF_USER}/test \
+    --dataset.num_episodes=10 \
+    --dataset.single_task=test \
+    --robot.cameras="{wrist_camera_1: {type: opencv, index_or_path: /dev/video0, width: 640, height: 480, fps: 30, }, wrist_camera_2: {type: opencv, index_or_path: /dev/video2, width: 640, height: 480, fps: 30, }, top_camera: {type: opencv, index_or_path: /dev/video4, width: 640, height: 480, fps: 30, }, side_camera: {type: opencv, index_or_path: /dev/video6, width: 640, height: 480, fps: 30, }}" \
+    --dataset.episode_time_s=60 \
+    --policy.path=./checkpoints/last/pretrained_model # for evaluation
+
+# Teleoperate with BiSO100  
+python -m lerobot.teleoperate \
+    --robot.type=bi_so100_follower \
+    --teleop.type=bi_so100_leader \
+    --display_data=true \
+    --robot.cameras="{wrist_camera_1: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30, }, wrist_camera_2: {type: opencv, index_or_path: 1, width: 640, height: 480, fps: 30, }, top_camera: {type: opencv, index_or_path: 2, width: 640, height: 480, fps: 30, }, side_camera: {type: opencv, index_or_path: 3, width: 640, height: 480, fps: 30, }}"
+```
+
+These files follow LeRobot's configuration style and can be used directly by specifying the robot and teleop type as `bi_so100_follower` and `bi_so100_leader` respectively. Then enjoy!
+
 ## 📋 Requirements
 
 ### Core Dependencies
@@ -236,6 +312,15 @@ bi_lerobot/
 ├── agents/           # Robot agent implementations
 │   └── robots/
 │       └── bi_so100/ # SO100 robot definition and control
+├── bi_so100/         # LeRobot integration components
+│   ├── bi_so100_follower/    # Bi_SO100 robot for LeRobot
+│   │   ├── __init__.py
+│   │   ├── bi_so100_follower.py
+│   │   └── config_bi_so100_follower.py
+│   └── bi_so100_leader/      # Bi_SO100 teleoperator for LeRobot
+│       ├── __init__.py
+│       ├── bi_so100_leader.py
+│       └── config_bi_so100_leader.py
 ├── envs/            # Simulation environments
 │   └── tasks/
 │       └── tabletop/ # Tabletop manipulation tasks
